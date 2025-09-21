@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import Anthropic from "@anthropic-ai/sdk";
+import multer from "multer";
+import pdfParse from "pdf-parse";
 
 // Load environment variables
 dotenv.config();
@@ -13,6 +15,11 @@ const PORT = process.env.PORT || 3000;
 // Initialize Anthropic client
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
 });
 
 // Middleware
@@ -29,15 +36,26 @@ app.get("/", (req, res) => {
 });
 
 // Claude chat endpoint
-app.post("/api/chat", async (req, res) => {
+app.post("/api/skills", upload.single("pdf"), async (req, res) => {
   try {
-    const { message } = req.body;
+    const { file } = req;
 
-    if (!message) {
-      return res.status(400).json({ error: "Message is required" });
+    console.log("file = ", file);
+
+    if (!file) {
+      return res.status(400).json({ error: "File is required" });
     }
 
-    console.log("Sending to Claude:", message);
+    if (file.mimetype !== "application/pdf") {
+      return res
+        .status(400)
+        .json({ error: "Only files of type pdf are permitted" });
+    }
+
+    const pdfData = await pdfParse(file.buffer);
+    const extractedText = pdfData.text;
+
+    /*console.log("Sending to Claude:", message);
 
     const response = await anthropic.messages.create({
       model: "claude-3-sonnet-20240229",
@@ -48,7 +66,7 @@ app.post("/api/chat", async (req, res) => {
     res.json({
       response: response.content[0].text,
       usage: response.usage,
-    });
+    }); */
   } catch (error) {
     console.error("Claude API error:", error);
     res.status(500).json({

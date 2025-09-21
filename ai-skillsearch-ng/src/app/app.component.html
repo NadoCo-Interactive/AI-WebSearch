@@ -5,11 +5,33 @@
   <div class="spacer"></div>
 </div>
 
+<!-- Hidden file input-->
+<input
+  #fileInput
+  type="file"
+  accept=".pdf"
+  (change)="onFileSelected($event)"
+  hidden
+/>
+
 <div class="content" role="main">
   <!-- Resources -->
-  <h2>Your Skills</h2>
-  <p>Here's what you can do</p>
+  <div>
+    <div style="display: flex; align-items: center; gap: 10px">
+      <h2>Your Skills</h2>
+      <img
+        width="20"
+        src="./assets/upload.png"
+        style="cursor: pointer"
+        (click)="openFileDialog()"
+      />
+    </div>
+
+    <p>Here's what you can do</p>
+  </div>
+  <img *ngIf="isLoading" src="./assets/loading.gif" width="20" />
   <div
+    *ngIf="!isLoading"
     style="display: grid; grid-template-columns: repeat(3, 1fr); grid-gap: 20px"
   >
     <app-skill></app-skill><app-skill></app-skill><app-skill></app-skill

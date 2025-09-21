@@ -34,8 +34,11 @@
     *ngIf="!isLoading"
     style="display: grid; grid-template-columns: repeat(3, 1fr); grid-gap: 20px"
   >
-    <app-skill></app-skill><app-skill></app-skill><app-skill></app-skill
-    ><app-skill></app-skill><app-skill></app-skill><app-skill></app-skill>
+    <app-skill
+      *ngFor="let skill of skills; trackBy: trackBySkill"
+      [skillData]="skill"
+    >
+    </app-skill>
   </div>
 
   <div style="display: none">

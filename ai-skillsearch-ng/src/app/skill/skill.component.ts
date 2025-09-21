@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-skill',
@@ -6,6 +6,8 @@ import { Component } from '@angular/core';
   styleUrls: ['./skill.component.css'],
 })
 export class SkillComponent {
+  @Input() skillData: any;
+
   ngOnInit() {
     this.playEnterSound();
   }

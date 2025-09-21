@@ -1,4 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -10,10 +12,12 @@ export class AppComponent {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  uploadedFile: File | null = null;
-
   isLoading: Boolean = false;
   isDialogOpen: Boolean = false;
+  skills: Record<string, string>[] = [];
+  uploadedFile: File | null = null;
+
+  constructor(private http: HttpClient) {}
 
   openFileDialog() {
     console.log('Triggering file dialog...');
@@ -50,10 +54,38 @@ export class AppComponent {
 
   onFileSelected(event: Event) {
     console.log(event);
+
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+    if (files && files.length > 0) {
+      this.uploadedFile = files[0];
+      console.log('File selected:', this.uploadedFile.name);
+    }
   }
 
-  private onDialogInteractionComplete() {
+  trackBySkill(index: number, skill: any): any {
+    return skill.NAME || index; // Use skill name as unique identifier
+  }
+
+  private async onDialogInteractionComplete() {
     console.log('File dialog interaction finished');
     this.isLoading = true;
+
+    if (this.uploadedFile == null) {
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('pdf', this.uploadedFile); // 'pdf' matches upload.single('pdf') in backend
+      const response: any = await firstValueFrom(
+        this.http.post('http://localhost:3000/api/skills', formData)
+      );
+      this.skills = response;
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 }

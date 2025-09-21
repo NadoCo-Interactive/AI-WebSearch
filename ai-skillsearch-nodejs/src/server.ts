@@ -55,18 +55,31 @@ app.post("/api/skills", upload.single("pdf"), async (req, res) => {
     const pdfData = await pdfParse(file.buffer);
     const extractedText = pdfData.text;
 
-    /*console.log("Sending to Claude:", message);
+    const { content } = await anthropic.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1500,
+      messages: [
+        {
+          role: "user",
+          content: `I have a PDF document with the following content. 
+          
+          Can you please check it for all references of job positions and individual skills and then give me an array of 
+          json objects representing each skill with a "NAME" and "EXPERIENCE" (in years) property. 
 
-    const response = await anthropic.messages.create({
-      model: "claude-3-sonnet-20240229",
-      max_tokens: 1000,
-      messages: [{ role: "user", content: message }],
+          IMPORTANT: Your response must be ONLY the raw JSON array. Do not include any markdown formatting, 
+          code blocks, explanations, or other text. Start your response with [ and end with ].
+
+          Example format: [{"NAME": "JavaScript", "EXPERIENCE": 5}, {"NAME": "Python", "EXPERIENCE": 3}]
+          
+          Document content: ${extractedText}`,
+        },
+      ],
     });
 
-    res.json({
-      response: response.content[0].text,
-      usage: response.usage,
-    }); */
+    const message = content[0].text;
+    const json = JSON.parse(message);
+
+    res.json(json);
   } catch (error) {
     console.error("Claude API error:", error);
     res.status(500).json({

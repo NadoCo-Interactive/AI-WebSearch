@@ -35,7 +35,15 @@ app.get("/", (req, res) => {
   });
 });
 
-// Claude chat endpoint
+// .. Claude skill info endpoint - upload skill info here to find out how much the skill is worth at that level e.g.
+// 2 years of C# experience vs. 6 months marketing experience
+app.post("/api/skillinfo", async (req, res) => {
+  // .. generate search queries to search for wages payable for that skill
+  // .. generate a description of the skill using claude
+  // add the description + skill wages to a JSON object and return it
+});
+
+// Claude skills endpoint - upload resume or linkedin profile here to fetch skills
 app.post("/api/skills", upload.single("pdf"), async (req, res) => {
   try {
     const { file } = req;

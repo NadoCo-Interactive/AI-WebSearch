@@ -72,11 +72,15 @@ export class AppComponent {
     this.isLoading = true;
 
     if (this.uploadedFile == null) {
+      console.log('no file was uploaded - skipping');
       return;
     }
 
     try {
       const formData = new FormData();
+      console.log(
+        'loading ' + this.uploadedFile + ' into form data and calling API...'
+      );
       formData.append('pdf', this.uploadedFile); // 'pdf' matches upload.single('pdf') in backend
       const response: any = await firstValueFrom(
         this.http.post('http://localhost:3000/api/skills', formData)
